@@ -152,7 +152,7 @@ def move_generation(depth_cntr, parent):
                         print "LAST ROW BRO"
 
         depth_cntr -= 1
-        if depth_cntr == 0:
+        if depth_cntr < 0:
             return
         for i in parent.children:
             move_generation(depth_cntr, i)
@@ -264,7 +264,7 @@ def move_generation(depth_cntr, parent):
                         print "LAST ROW BRO"
                                     
         depth_cntr -= 1
-        if depth_cntr == 0:
+        if depth_cntr < 0:
             return
         for i in parent.children:
             move_generation(depth_cntr, i)
