@@ -5,6 +5,8 @@
 Usage: python main.py
 """
 
+import copy
+
 #simple class for node manipulation
 class Node:
     def __init__(self, player, state, parent=None):
@@ -14,12 +16,12 @@ class Node:
         self.children = []      #keeps track of the children for traversal
 
     def children_addition(self, temp_node):
-        self.children_addition(temp_node)
+        self.children.append(temp_node)
 
     #create complete game tree
     def tree_creation(self, player, initial_state, parent):
         temp_node = Node(player, initial_state, parent)
-        self.children_addition(temp_node)   
+        #self.children.append(temp_node)   
 
 
 #class to construct the game tree 
@@ -39,18 +41,65 @@ class Tree:
         if player:  #STAR
             print "STAR"
 
-            temp_node = Node(player, state, parent)
-
+            
             #logic for searching the STARS
-            cnt1 = 8
+            cnt1 = -1 #8
             cnt2 = -1
+
             for i in state:
-                cnt1 -= 1
+                cnt1 += 1 #-1
                 cnt2 = -1
                 for j in i:
                     cnt2 += 1
+                    temp_state = copy.deepcopy(state)
                     if (list(j)[0]) == 'S':
-                        #print cnt1,cnt2     #cnt1,cnt2 is location of star on the board
+                        print cnt1,cnt2     #cnt1,cnt2 is location of star on the board
+                        print state[cnt1][cnt2],cnt1,cnt2
+
+                        if cnt1 != 0:   #check if star is in last row or not
+                            if ((cnt1-1 >=0 and cnt1-1 <= 7) and (cnt2-1 >=0 and cnt2-1 <= 7)):
+                                print state[cnt1-1][cnt2-1],cnt1-1,cnt2-1
+                                if state[cnt1-1][cnt2-1] == '0':
+                                    #recursive call and move to this position
+                                    print "pri1"
+                                    temp_state = copy.deepcopy(state)
+
+                                    temp_node = Node(0, temp_state, parent)
+                                else:
+                                    #skip
+                                    print "pri11"
+                                    
+                            if ((cnt1-1 >=0 and cnt1-1 <= 7) and (cnt2+1 >=0 and cnt2+1 <= 7)):
+                                print state[cnt1-1][cnt2+1],cnt1-1,cnt2+1 
+                                if state[cnt1-1][cnt2+1] == '0':
+                                    #recursive call and move to this position
+                                    print "pri2"
+                                else:
+                                    #skip
+                                    print "pri22"
+                                
+                            if ((cnt1-2 >=0 and cnt1-2 <= 7) and (cnt2-2 >=0 and cnt2-2 <= 7)):
+                                print state[cnt1-2][cnt2-2],cnt1-2,cnt2-2
+                                if ((state[cnt1-2][cnt2-2] == '0') and (list(state[cnt1-1][cnt2-1])[0] == 'C')):
+                                    #recursive call and move to this position
+                                    print "pri3"
+                                else:
+                                    #skip
+                                    print "pri33"
+                                
+                            if ((cnt1-2 >=0 and cnt1-2 <= 7) and (cnt2+2 >=0 and cnt2+2 <= 7)):
+                                print state[cnt1-2][cnt2+2],cnt1-2,cnt2+2
+                                if ((state[cnt1-2][cnt2+2] == '0') and (list(state[cnt1-1][cnt2+1])[0] == 'C')):
+                                    #recursive call and move to this position
+                                    print "pri4"
+                                else:
+                                    #skip 
+                                    print "pri44"
+                                
+                        else:
+                            print "LAST ROW BRO"
+
+
         else:
             print "CIRCLE"
             cnt1 = 8
@@ -62,8 +111,8 @@ class Tree:
                     cnt2 += 1
                     if (list(j)[0]) == 'C':
                         #print cnt1,cnt2     #cnt1,cnt2 is location of circle on the board
+                        print "hello"
                      
-
 
 
 ###################################################################################################################
@@ -99,9 +148,9 @@ def read_input_file():
 def main():
     player,initial_state = read_input_file()
     game_tree = Tree()
-    #game_tree.tree_creation(player, initial_state, parent=None) #created root here
+    root = game_tree.tree_creation(player, initial_state, parent=None) #created root here
     #create tree here
-    game_tree.move_generation(player, initial_state, parent=None)    #testing traversal
+    game_tree.move_generation(player, initial_state, root)    #testing traversal
    
 
 #call to main function
