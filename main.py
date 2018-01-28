@@ -13,8 +13,13 @@ class Node:
         self.parent = parent    #keeps track of the parent
         self.children = []      #keeps track of the children for traversal
 
-    def tree_creation(self, player, initial_state, parent):
+    def children_addition(self, temp_node):
+        self.children_addition(temp_node)
 
+    #create complete game tree
+    def tree_creation(self, player, initial_state, parent):
+        temp_node = Node(player, initial_state, parent)
+        self.children_addition(temp_node)   
 
 
 #class to construct the game tree 
@@ -22,12 +27,46 @@ class Tree:
     def __init__(self):
         self.root = None
 
+    #interface for building tree 
     def tree_creation(self, player, initial_state, parent):
         if self.root:
-            return self.root.tree_creation(player, initial_state, parent)
+            return self.root.tree_creation(player, initial_state, parent)  ######FIGURE OUT HOW TO CALL THIS AFTER ROOT IS CREATED
         else:
-            self.root = Node(player, initial_state, parent) 
+            self.root = Node(player, initial_state, parent)
 
+    #move generation based on current position
+    def move_generation(self, player, state, parent):
+        if player:  #STAR
+            print "STAR"
+
+            temp_node = Node(player, state, parent)
+
+            #logic for searching the STARS
+            cnt1 = 8
+            cnt2 = -1
+            for i in state:
+                cnt1 -= 1
+                cnt2 = -1
+                for j in i:
+                    cnt2 += 1
+                    if (list(j)[0]) == 'S':
+                        #print cnt1,cnt2     #cnt1,cnt2 is location of star on the board
+        else:
+            print "CIRCLE"
+            cnt1 = 8
+            cnt2 = -1
+            for i in state:
+                cnt1 -= 1
+                cnt2 = -1
+                for j in i:
+                    cnt2 += 1
+                    if (list(j)[0]) == 'C':
+                        #print cnt1,cnt2     #cnt1,cnt2 is location of circle on the board
+                     
+
+
+
+###################################################################################################################
 #reads input file and does necessary formatting
 def read_input_file():
     input_file = open("input.txt")
@@ -60,7 +99,10 @@ def read_input_file():
 def main():
     player,initial_state = read_input_file()
     game_tree = Tree()
-    game_tree.tree_creation(player, initial_state, parent)
+    #game_tree.tree_creation(player, initial_state, parent=None) #created root here
+    #create tree here
+    game_tree.move_generation(player, initial_state, parent=None)    #testing traversal
+   
 
 #call to main function
 if __name__ == '__main__':
