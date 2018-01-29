@@ -33,6 +33,16 @@ def tree_creation(player, initial_state, root):
         root = Node(player, initial_state, None)
         return root
 
+def is_game_over(board):
+    has_star = False
+    has_circle = False
+    for i in board:
+        for j in i:
+            if list(j)[0] == 'S':
+                has_star = True
+            elif list(j)[0] == 'C':
+                has_circle = True
+    return not(has_star and has_circle) 
 
 #move generation based on current position
 def move_generation(depth_cntr, parent):
@@ -51,7 +61,7 @@ def move_generation(depth_cntr, parent):
     global visited_nodes
 
     #Check terminating conditions
-    if depth_cntr == 0:  #depth check
+    if depth_cntr == 0 or is_game_over(parent.state):  #depth check
         return
 
     if parent.player:  #STAR i.e. player is 1
