@@ -124,3 +124,26 @@
             else:
                 parent.player = 0
                 move_generation(depth_cntr, parent)
+
+
+
+
+
+
+                if pass_check_cntr_circle == 4:   #pass check
+                    pass_cntr_star += 1
+                    print "PASS Inside: ",pass_cntr_star
+                    if pass_cntr_star ==  2:
+                        print "PASS Inside: Terminated"
+                        depth_cntr = 0
+                        breaker = 1
+                        break
+                    else:
+                        parent.player = 1
+                        move_generation(depth_cntr, parent)
+
+            if breaker == 1:
+                break
+
+
+
