@@ -17,7 +17,10 @@ global visited_nodes
 
 #simple class for node manipulation
 class Node:
-    def __init__(self, player, state, parent=None):
+    def __init__(self, player, state, parent=None, value=0, name='', pas=0):
+        self.value = value      #for storing min max value
+        self.name = name        #PATH
+        self.pas = pas          #pass counter for each state
         self.player = player
         self.state = state
         self.parent = parent    #keeps track of the parent
@@ -47,6 +50,10 @@ def move_generation(depth_cntr, parent):
     global pass_cntr
     global visited_nodes
 
+    #Check terminating conditions
+    if depth_cntr == 0:  #depth check
+        return
+
     if parent.player:  #STAR i.e. player is 1
         print "STAR"
         #logic for searching the STARS
@@ -61,10 +68,9 @@ def move_generation(depth_cntr, parent):
                 cnt2 += 1
                 #print "Value in j: ",list(j)[0]
                 if (list(j)[0]) == 'S':
-                    "Value in j: ",list(j)[0]
-                    #print cnt1,cnt2     #cnt1,cnt2 is location of star on the board
-                    #print parent.state[cnt1][cnt2],cnt1,cnt2
-                    #print "Checking for each element"
+                    print parent.state[cnt1][cnt2],cnt1,cnt2
+
+                    #THESE ARE BASICALLY VALID MOVES 1.keep counter of S here 2.keep count of skipped moves
                     if cnt1 != 0:   #check if star is in last row or not
 
                         if ((cnt1-2 >=0 and cnt1-2 <= 7) and (cnt2-2 >=0 and cnt2-2 <= 7)):
@@ -89,6 +95,10 @@ def move_generation(depth_cntr, parent):
                                 #skip
                                 print "pri1"
                                 pass_check_cntr_star += 1
+                        else:
+                            #skip
+                            print "pri11"
+                            pass_check_cntr_star += 1
 
                         if ((cnt1-2 >=0 and cnt1-2 <= 7) and (cnt2+2 >=0 and cnt2+2 <= 7)):
                             #print parent.state[cnt1-2][cnt2+2],cnt1-2,cnt2+2
@@ -111,7 +121,11 @@ def move_generation(depth_cntr, parent):
                             else:
                                 #skip
                                 print "pri2"
-                                pass_check_cntr_star += 1                   
+                                pass_check_cntr_star += 1
+                        else:
+                            #skip
+                            print "pri22"
+                            pass_check_cntr_star += 1                     
 
                         if ((cnt1-1 >=0 and cnt1-1 <= 7) and (cnt2-1 >=0 and cnt2-1 <= 7)):
                             #print parent.state[cnt1-1][cnt2-1],cnt1-1,cnt2-1
@@ -133,6 +147,10 @@ def move_generation(depth_cntr, parent):
                                 #Skip
                                 print "pri3"
                                 pass_check_cntr_star += 1
+                        else:
+                            #Skip
+                            print "pri33"
+                            pass_check_cntr_star += 1
                             
                         if ((cnt1-1 >=0 and cnt1-1 <= 7) and (cnt2+1 >=0 and cnt2+1 <= 7)):
                             #print parent.state[cnt1-1][cnt2+1],cnt1-1,cnt2+1 
@@ -154,23 +172,48 @@ def move_generation(depth_cntr, parent):
                                 #Skip
                                 print "pri4"
                                 pass_check_cntr_star += 1
+                        else:
+                            #Skip
+                            print "pri44"
+                            pass_check_cntr_star += 1
+                
+                        if pass_check_cntr_star == 4: #no move for a state and should be a pass
+                            print "No valid move for this piece of S"
                     else:
                         print "Last Row"        
-                
+               # else:
+                    #print "Empty location"
                     #print "Not a Star"
-                #print "Internal pass counter:",pass_check_cntr_star
 
+               # print "Pass Counter ",pass_check_cntr_star
 
-        depth_cntr -= 1
-        #Check terminating conditions
-        if depth_cntr < 0:  #depth check
-            return
+        #IF counter_of_S ==  pass_check_cntr_star/4 ---> PASS      
 
+        #if no children for current node, pass
+        print "No of children before checks: ",len(parent.children)
+        if len(parent.children) == 0:
+            parent.pas += 1
+            print "PASS from STAR: ",parent.pas
+            if parent.pas == 2:
+                print "PASS: TERMINATION"
+                depth = 0
+            else:
+                parent.player = 0   #call Circle now
+                visited_nodes += 1
+                print "\nVisted Nodes: ",visited_nodes
+                move_generation(depth_cntr-1, parent)
+        else:
         #call children of the parent
-        for i in parent.children:
-            visited_nodes += 1
-            print "\nVisted Nodes: ",visited_nodes
-            move_generation(depth_cntr, i)
+            for i in parent.children:
+                visited_nodes += 1
+                print "\nVisted Nodes: ",visited_nodes
+                move_generation(depth_cntr-1, i)
+
+        #Check terminating conditions
+        #if depth_cntr < 0:  #depth check
+        #    return
+
+
 
     else:
         print "CIRCLE"
@@ -187,8 +230,7 @@ def move_generation(depth_cntr, parent):
 
                 if (list(j)[0]) == 'C':
                     #print cnt1,cnt2     #cnt1,cnt2 is location of star on the board
-                    #print parent.state[cnt1][cnt2],cnt1,cnt2                   
-                    "Value in j: ",list(j)[0]
+                    print parent.state[cnt1][cnt2],cnt1,cnt2                   
                     if (cnt1 != 7):
                         if ((cnt1+1 >=0 and cnt1+1 <= 7) and (cnt2-1 >=0 and cnt2-1 <= 7)):
                             print parent.state[cnt1+1][cnt2-1],cnt1+1,cnt2-1
@@ -211,6 +253,10 @@ def move_generation(depth_cntr, parent):
                                 #Skip
                                 print "pri1"
                                 pass_check_cntr_circle += 1
+                        else:
+                            #Skip
+                            print "pri11"
+                            pass_check_cntr_circle += 1
 
                         if ((cnt1+1 >=0 and cnt1+1 <= 7) and (cnt2+1 >=0 and cnt2+1 <= 7)):
                             #print parent.state[cnt1+1][cnt2+1],cnt1+1,cnt2+1 
@@ -232,6 +278,10 @@ def move_generation(depth_cntr, parent):
                                 #Skip
                                 print "pri2"
                                 pass_check_cntr_circle += 1
+                        else:
+                            #Skip
+                            print "pri22"
+                            pass_check_cntr_circle += 1
 
                         if ((cnt1+2 >=0 and cnt1+2 <= 7) and (cnt2-2 >=0 and cnt2-2 <= 7)):
                             #print parent.state[cnt1-2][cnt2-2],cnt1-2,cnt2-2
@@ -257,6 +307,10 @@ def move_generation(depth_cntr, parent):
                                 #Skip
                                 print "pri3"
                                 pass_check_cntr_circle += 1
+                        else:
+                            #Skip
+                            print "pri33"
+                            pass_check_cntr_circle += 1
 
                         if ((cnt1+2 >=0 and cnt1+2 <= 7) and (cnt2+2 >=0 and cnt2+2 <= 7)):
                             #print parent.state[cnt1-2][cnt2+2],cnt1-2,cnt2+2
@@ -279,28 +333,45 @@ def move_generation(depth_cntr, parent):
                             else:
                                 #Skip
                                 print "pri4"
-                                pass_check_cntr_circle += 1                             
+                                pass_check_cntr_circle += 1 
+                        else:
+                            #Skip
+                            print "pri44"
+                            pass_check_cntr_circle += 1                            
+                        
+                        if pass_check_cntr_circle == 4: #no move for a state and should be a pass
+                            print "No valid move for this piece of S"
                     else:
-                        print "Last Row"
+                        print "Last Row" 
                 
                     #print "Not a Circle"
                 #print "Internal pass counter:",pass_check_cntr_circle
 
+        #if no children for current node, pass
+        print "No of children before checks: ",len(parent.children)
+        if len(parent.children) == 0:
+            parent.pas += 1
+            print "PASS from CIRCLE: ",parent.pas
+            if parent.pas == 2:
+                print "PASS: TERMINATION"
+                depth = 0
+            else:
+                parent.player = 1   #call Circle now
+                visited_nodes += 1
+                print "\nVisted Nodes: ",visited_nodes
+                move_generation(depth_cntr-1, parent)
+        else:
+        #call children of the parent
+            for i in parent.children:
+                visited_nodes += 1
+                print "\nVisted Nodes: ",visited_nodes
+                move_generation(depth_cntr-1, i)
 
-
-        depth_cntr -= 1
         #Check terminating conditions
-        if depth_cntr < 0:  #depth check
-            print "DEPTH LIMIT REACHED"
-            return
-        
-        print "\nNo of children before recursion ",len(parent.children) 
-        for i in parent.children:
-            visited_nodes += 1
-            print "\nVisted Nodes: ",visited_nodes
-            move_generation(depth_cntr, i)
+        #if depth_cntr < 0:  #depth check
+        #    return
                            
-                     
+    return  #final return of moves_generation             
 
 
 ###################################################################################################################
@@ -342,6 +413,7 @@ def main():
     root = tree_creation(player, initial_state, None) #created root here
     print "ROOT CREATED\n"
     #create tree here
+    print "\nVisted Nodes: ",visited_nodes
     move_generation(depth_cntr, root)    #testing traversal
 
 
