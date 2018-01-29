@@ -15,11 +15,12 @@ global depth
 global pass_cntr
 global visited_nodes
 
+
 #simple class for node manipulation
 class Node:
-    def __init__(self, player, state, parent=None, value=0, name='', pas=0):
+    def __init__(self, player, state, parent=None, name="", value=0, pas=0):
+        self.name = name
         self.value = value      #for storing min max value
-        self.name = name        #PATH
         self.pas = pas          #pass counter for each state
         self.player = player
         self.state = state
@@ -31,8 +32,10 @@ class Node:
 def tree_creation(player, initial_state, root):
     if not root:
         root = Node(player, initial_state, None)
+        root.name = "ROOT"
         return root
 
+#check if 1.No pieces on board 2.Only Stars 3.Only circles 
 def is_game_over(board):
     has_star = False
     has_circle = False
@@ -48,6 +51,7 @@ def is_game_over(board):
 def move_generation(depth_cntr, parent):
     #printing each new iteration here
     print "********************************************************"
+    print "\nNode Name: ",parent.name
     for i in parent.state:
         print "\n"
         for j in i:
@@ -59,6 +63,7 @@ def move_generation(depth_cntr, parent):
 
     global pass_cntr
     global visited_nodes
+    
 
     #Check terminating conditions
     if depth_cntr == 0 or is_game_over(parent.state):  #depth check
@@ -99,7 +104,9 @@ def move_generation(depth_cntr, parent):
                                         temp_state[cnt1-2][cnt2-2] = 'S1'
                                     temp_state[cnt1][cnt2] = '0'
                                     temp_state[cnt1-1][cnt2-1] = '0'
+                                    print "lol" + str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+2)) + str(cnt2+1-2)
                                     temp_node = Node(0, temp_state, parent)
+                                    temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+2)) + str(cnt2+1-2))
                                     parent.children.append(temp_node)   #Add children here
                             else:
                                 #skip
@@ -126,7 +133,9 @@ def move_generation(depth_cntr, parent):
                                         temp_state[cnt1-2][cnt2+2] = 'S1'
                                     temp_state[cnt1][cnt2] = '0'
                                     temp_state[cnt1-1][cnt2+1] = '0'
+                                    print "lol" + str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+1)) + str(cnt2+1+1)
                                     temp_node = Node(0, temp_state, parent)
+                                    temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+1)) + str(cnt2+1+1))
                                     parent.children.append(temp_node)   #Add children here
                             else:
                                 #skip
@@ -151,7 +160,9 @@ def move_generation(depth_cntr, parent):
                                 else:
                                     temp_state[cnt1-1][cnt2-1] = 'S1' 
                                 temp_state[cnt1][cnt2] = '0'
+                                print "lol" + str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+1)) + str(cnt2+1-1)
                                 temp_node = Node(0, temp_state, parent)
+                                temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+1)) + str(cnt2+1-1))
                                 parent.children.append(temp_node)   #Add children here
                             else:
                                 #Skip
@@ -176,7 +187,9 @@ def move_generation(depth_cntr, parent):
                                 else:
                                     temp_state[cnt1-1][cnt2+1] = 'S1'
                                 temp_state[cnt1][cnt2] = '0'
+                                print "lol" + str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+1)) + str(cnt2+1+1)                       
                                 temp_node = Node(0, temp_state, parent)
+                                temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+1)) + str(cnt2+1+1))
                                 parent.children.append(temp_node)
                             else:
                                 #Skip
@@ -191,15 +204,7 @@ def move_generation(depth_cntr, parent):
                             print "No valid move for this piece of S"
                     else:
                         print "Last Row"        
-               # else:
-                    #print "Empty location"
-                    #print "Not a Star"
 
-               # print "Pass Counter ",pass_check_cntr_star
-
-        #IF counter_of_S ==  pass_check_cntr_star/4 ---> PASS      
-
-        #if no children for current node, pass
         print "No of children before checks: ",len(parent.children)
         if len(parent.children) == 0:
             parent.pas += 1
@@ -218,12 +223,6 @@ def move_generation(depth_cntr, parent):
                 visited_nodes += 1
                 print "\nVisted Nodes: ",visited_nodes
                 move_generation(depth_cntr-1, i)
-
-        #Check terminating conditions
-        #if depth_cntr < 0:  #depth check
-        #    return
-
-
 
     else:
         print "CIRCLE"
@@ -257,7 +256,9 @@ def move_generation(depth_cntr, parent):
                                     temp_state[cnt1+1][cnt2-1] = 'C1' 
 
                                 temp_state[cnt1][cnt2] = '0'
+                                print "lol" + str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1-1)) + str(cnt2+1-1)
                                 temp_node = Node(1, temp_state, parent)
+                                temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1-1)) + str(cnt2+1-1))
                                 parent.children.append(temp_node)
                             else:
                                 #Skip
@@ -282,7 +283,9 @@ def move_generation(depth_cntr, parent):
                                 else:
                                     temp_state[cnt1+1][cnt2+1] = 'C1'
                                 temp_state[cnt1][cnt2] = '0'
+                                print "lol" + str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1-1)) + str(cnt2+1+1)
                                 temp_node = Node(1, temp_state, parent)
+                                temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1-1)) + str(cnt2+1+1))
                                 parent.children.append(temp_node)
                             else:
                                 #Skip
@@ -311,7 +314,9 @@ def move_generation(depth_cntr, parent):
                                         temp_state[cnt1+2][cnt2-2] = 'C1'
                                     temp_state[cnt1][cnt2] = '0'
                                     temp_state[cnt1+1][cnt2-1] = '0'
+                                    print "lol" + str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1-2)) + str(cnt2+1-2)
                                     temp_node = Node(1, temp_state, parent)
+                                    temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1-2)) + str(cnt2+1-2))
                                     parent.children.append(temp_node)   #Add children here
                             else:
                                 #Skip
@@ -338,7 +343,9 @@ def move_generation(depth_cntr, parent):
                                         temp_state[cnt1+2][cnt2+2] = 'C1'
                                     temp_state[cnt1][cnt2] = '0'
                                     temp_state[cnt1+1][cnt2+1] = '0'
+                                    print "lol" + str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1-2)) + str(cnt2+1+2)
                                     temp_node = Node(1, temp_state, parent)
+                                    temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1-2)) + str(cnt2+1+2))
                                     parent.children.append(temp_node)   #Add children here
                             else:
                                 #Skip
@@ -353,9 +360,6 @@ def move_generation(depth_cntr, parent):
                             print "No valid move for this piece of S"
                     else:
                         print "Last Row" 
-                
-                    #print "Not a Circle"
-                #print "Internal pass counter:",pass_check_cntr_circle
 
         #if no children for current node, pass
         print "No of children before checks: ",len(parent.children)
@@ -376,10 +380,6 @@ def move_generation(depth_cntr, parent):
                 visited_nodes += 1
                 print "\nVisted Nodes: ",visited_nodes
                 move_generation(depth_cntr-1, i)
-
-        #Check terminating conditions
-        #if depth_cntr < 0:  #depth check
-        #    return
                            
     return  #final return of moves_generation             
 
@@ -389,7 +389,7 @@ def move_generation(depth_cntr, parent):
 def read_input_file():
     input_file = open("input.txt")
     ip = input_file.read().splitlines()
-
+    input_file.close()
     #setting player variable here
     if str(ip[0]) == str("Star"):
         player = 1
@@ -417,14 +417,21 @@ def main():
     global visited_nodes
     global pass_cntr
     
+    
     visited_nodes = 1
     pass_cntr = 0
     pass_cntr_circlr = 0
+
     root = tree_creation(player, initial_state, None) #created root here
     print "ROOT CREATED\n"
     #create tree here
     print "\nVisted Nodes: ",visited_nodes
     move_generation(depth_cntr, root)    #testing traversal
+
+    #writing to the output file
+    op = open("output.txt","w")
+    op.write("\nVisited Nodes: " + str(visited_nodes))
+    op.close()
 
 
 #call to main function
