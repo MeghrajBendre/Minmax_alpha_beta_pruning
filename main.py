@@ -12,7 +12,9 @@ import copy
 global algo
 global weights
 global depth
-global pass_cntr
+global pass_cntr_star
+global pass_cntr_circle
+global visited_nodes
 
 #simple class for node manipulation
 class Node:
@@ -36,7 +38,7 @@ def tree_creation(player, initial_state, root):
         return root
 
 #move generation based on current position
-def move_generation(visited_nodes, depth_cntr, parent):
+def move_generation(depth_cntr, parent):
 
     print "********************************************************"
     for i in parent.state:
@@ -45,7 +47,9 @@ def move_generation(visited_nodes, depth_cntr, parent):
             print j,
     print "\nDepth: ",depth_cntr       
     print "********************************************************"
-    global pass_cntr
+    global pass_cntr_star
+    global pass_cntr_circle
+    global visited_nodes
 
     if parent.player:  #STAR
         print "STAR"
@@ -53,25 +57,26 @@ def move_generation(visited_nodes, depth_cntr, parent):
         #logic for searching the STARS
         cnt1 = -1 #8
         cnt2 = -1
-
+        breaker = 0
         for i in parent.state:
             cnt1 += 1 #-1
             cnt2 = -1
+            pass_check_cntr_star = 0
             for j in i:
                 cnt2 += 1
-
+                print "Value in j: ",list(j)[0]
                 if (list(j)[0]) == 'S':
-                    print cnt1,cnt2     #cnt1,cnt2 is location of star on the board
-                    print parent.state[cnt1][cnt2],cnt1,cnt2
-
+                    #print cnt1,cnt2     #cnt1,cnt2 is location of star on the board
+                    #print parent.state[cnt1][cnt2],cnt1,cnt2
+                    print "Checking for each element"
                     if cnt1 != 0:   #check if star is in last row or not
-
+                        print "NOT LAST ROW"
                         if ((cnt1-2 >=0 and cnt1-2 <= 7) and (cnt2-2 >=0 and cnt2-2 <= 7)):
                             #print parent.state[cnt1-2][cnt2-2],cnt1-2,cnt2-2
                             if (list(parent.state[cnt1-1][cnt2-1])[0] == 'C'):
                                 if ((parent.state[cnt1-2][cnt2-2] == '0') or (( cnt1-2 == 0) and (list(parent.state[cnt1-2][cnt2-2])[0] == 'S'))):
                                     #recursive call and move to this position
-                                    print "pri3"
+                                    print ""
                                     temp_state = copy.deepcopy(parent.state)
                                     #check for super-imposing moves on the last node
                                     if (temp_state[cnt1-2][cnt2-2] != '0') and (cnt1-2 == 0):
@@ -86,14 +91,15 @@ def move_generation(visited_nodes, depth_cntr, parent):
                                     parent.children.append(temp_node)   #Add children here
                             else:
                                 #skip
-                                print "pri33"
+                                print "pri1"
+                                pass_check_cntr_star += 1
 
                         if ((cnt1-2 >=0 and cnt1-2 <= 7) and (cnt2+2 >=0 and cnt2+2 <= 7)):
                             #print parent.state[cnt1-2][cnt2+2],cnt1-2,cnt2+2
                             if (list(parent.state[cnt1-1][cnt2+1])[0] == 'C'):
                                 if ((parent.state[cnt1-2][cnt2+2] == '0') or (( cnt1-2 == 0) and (list(parent.state[cnt1-2][cnt2+2])[0] == 'S'))):
                                     #recursive call and move to this position
-                                    print "pri4"
+                                    print ""
                                     temp_state = copy.deepcopy(parent.state)
                                     #check for super-imposing moves on the last node
                                     if (temp_state[cnt1-2][cnt2+2] != '0') and (cnt1-2 == 0):
@@ -107,14 +113,15 @@ def move_generation(visited_nodes, depth_cntr, parent):
                                     temp_node = Node(0, temp_state, parent)
                                     parent.children.append(temp_node)   #Add children here
                             else:
-                                #skip 
-                                print "pri44"                        
+                                #skip
+                                print "pri2"
+                                pass_check_cntr_star += 1                     
 
                         if ((cnt1-1 >=0 and cnt1-1 <= 7) and (cnt2-1 >=0 and cnt2-1 <= 7)):
                             #print parent.state[cnt1-1][cnt2-1],cnt1-1,cnt2-1
                             if ((parent.state[cnt1-1][cnt2-1] == '0') or ((cnt1-1 == 0) and (list(parent.state[cnt1-1][cnt2-1])[0] == 'S'))):
                                 #recursive call and move to this position
-                                print "pri1"
+                                print ""
                                 temp_state = copy.deepcopy(parent.state)
                                 #check for super-imposing moves on the last node
                                 if (temp_state[cnt1-1][cnt2-1] != '0'):
@@ -127,14 +134,15 @@ def move_generation(visited_nodes, depth_cntr, parent):
                                 temp_node = Node(0, temp_state, parent)
                                 parent.children.append(temp_node)   #Add children here
                             else:
-                                #logic for S in last row
-                                print "pri11"
+                                #Skip
+                                print "pri3"
+                                pass_check_cntr_star += 1
                                 
                         if ((cnt1-1 >=0 and cnt1-1 <= 7) and (cnt2+1 >=0 and cnt2+1 <= 7)):
                             #print parent.state[cnt1-1][cnt2+1],cnt1-1,cnt2+1 
                             if ((parent.state[cnt1-1][cnt2+1] == '0') or ((cnt1-1 == 0) and (list(parent.state[cnt1-1][cnt2+1])[0] == 'S'))):
                                 #recursive call and move to this position
-                                print "pri2"
+                                print ""
                                 temp_state = copy.deepcopy(parent.state)
                                 #check for super-imposing moves on the last node
                                 if temp_state[cnt1-1][cnt2+1] != '0':
@@ -147,37 +155,66 @@ def move_generation(visited_nodes, depth_cntr, parent):
                                 temp_node = Node(0, temp_state, parent)
                                 parent.children.append(temp_node)
                             else:
-                                #skip
-                                print "pri22"
+                                #Skip
+                                print "pri4"
+                                pass_check_cntr_star += 1
                             
                     else:
-                        print "LAST ROW BRO"
+                        #Skip
+                        print "LAST ROW"
+                        pass_check_cntr_star = 4
+                else:
+                    print "Not a Star"
+                print "Internal pass counter:",pass_check_cntr_star
+
+
+                if pass_check_cntr_star == 4:   #pass check
+                    pass_cntr_star += 1
+                    print "PASS Inside: ",pass_cntr_star
+                    if pass_cntr_star ==  2:
+                        print "PASS Inside: Terminated"
+                        depth_cntr = 0
+                        breaker = 1
+                        break
+                    else:
+                        parent.player = 0
+                        move_generation(depth_cntr, parent)
+
+            if breaker == 1:
+                break
+
+        if ((breaker == 0) and (len(parent.children == 0))):
+            pass_cntr_star += 1
+            print "PASS Outside: ",pass_cntr_star
+            if pass_cntr_star ==  2:
+                print "PASS Outside: Terminated"
+                depth_cntr = 0
+            else:
+                parent.player = 0
+                move_generation(depth_cntr, parent)
 
         depth_cntr -= 1
         #Check terminating conditions
         if depth_cntr < 0:  #depth check
             return
-        if len(parent.children) == 0:   #pass check
-            pass_cntr += 1
-            print "PASS"
-            if pass_cntr == 2:
-                print "PASS: Terminated"
-                return
 
+        #call children of the parent
         for i in parent.children:
             visited_nodes += 1
             print "\nVisted Nodes: ",visited_nodes
-            move_generation(visited_nodes, depth_cntr, i)
+            move_generation(depth_cntr, i)
 
     else:
         print "CIRCLE"
         #logic for searching the STARS
         cnt1 = -1 #8
         cnt2 = -1
+        breaker = 0
 
         for i in parent.state:
             cnt1 += 1 #-1
             cnt2 = -1
+            pass_check_cntr_circle = 0
             for j in i:
                 cnt2 += 1
 
@@ -191,7 +228,7 @@ def move_generation(visited_nodes, depth_cntr, parent):
                             print parent.state[cnt1+1][cnt2-1],cnt1+1,cnt2-1
                             if ((parent.state[cnt1+1][cnt2-1] == '0') or ((cnt1+1 == 7) and (list(parent.state[cnt1+1][cnt2-1])[0] == 'C'))):
                                 #recursive call and move to this position
-                                print "pri1"
+                                print ""
                                 temp_state = copy.deepcopy(parent.state)
                                 #check for super-imposing moves on the last node
                                 if (temp_state[cnt1+1][cnt2-1] != '0'):
@@ -206,14 +243,14 @@ def move_generation(visited_nodes, depth_cntr, parent):
                                 parent.children.append(temp_node)
                             else:
                                 #skip
-                                print "pri11"
+                                pass_check_cntr_circle += 1
 
                         if ((cnt1+1 >=0 and cnt1+1 <= 7) and (cnt2+1 >=0 and cnt2+1 <= 7)):
-                            print "pri21"
+                            print "1"
                             #print parent.state[cnt1+1][cnt2+1],cnt1+1,cnt2+1 
                             if ((parent.state[cnt1+1][cnt2+1] == '0') or ((cnt1+1 == 7) and (list(parent.state[cnt1+1][cnt2+1])[0] == 'C'))):
                                 #recursive call and move to this position
-                                print "pri23"
+                                print "3"
                                 temp_state = copy.deepcopy(parent.state)
                                 #check for super-imposing moves on the last node
                                 if temp_state[cnt1+1][cnt2+1] != '0':
@@ -223,21 +260,21 @@ def move_generation(visited_nodes, depth_cntr, parent):
                                 else:
                                     temp_state[cnt1+1][cnt2+1] = 'C1'
                                 temp_state[cnt1][cnt2] = '0'
-                                temp_node = Node(0, temp_state, parent)
+                                temp_node = Node(1, temp_state, parent)
                                 parent.children.append(temp_node)
                             else:
                                 #skip
-                                print "pri22"
+                                pass_check_cntr_circle += 1
 
 
                         if ((cnt1+2 >=0 and cnt1+2 <= 7) and (cnt2-2 >=0 and cnt2-2 <= 7)):
                             #print parent.state[cnt1-2][cnt2-2],cnt1-2,cnt2-2
-                            print "pri31"
+                            print ""
                             if (list(parent.state[cnt1+1][cnt2-1])[0] == 'S'):
-                                print "pri32"
+                                print ""
                                 if ((parent.state[cnt1+2][cnt2-2] == '0') or (( cnt1+2 == 7) and (list(parent.state[cnt1+2][cnt2-2])[0] == 'C'))):
                                     #recursive call and move to this position
-                                    print "pri33"
+                                    print ""
                                     temp_state = copy.deepcopy(parent.state)
                                     #check for super-imposing moves on the last node
                                     if (temp_state[cnt1+2][cnt2-2] != '0') and (cnt1+2 == 7):
@@ -248,18 +285,18 @@ def move_generation(visited_nodes, depth_cntr, parent):
                                         temp_state[cnt1+2][cnt2-2] = 'C1'
                                     temp_state[cnt1][cnt2] = '0'
                                     temp_state[cnt1+1][cnt2-1] = '0'
-                                    temp_node = Node(0, temp_state, parent)
+                                    temp_node = Node(1, temp_state, parent)
                                     parent.children.append(temp_node)   #Add children here
                             else:
                                 #skip
-                                print "pri33"
+                                pass_check_cntr_circle += 1
 
                         if ((cnt1+2 >=0 and cnt1+2 <= 7) and (cnt2+2 >=0 and cnt2+2 <= 7)):
                             #print parent.state[cnt1-2][cnt2+2],cnt1-2,cnt2+2
                             if (list(parent.state[cnt1+1][cnt2+1])[0] == 'S'):
                                 if ((parent.state[cnt1+2][cnt2+2] == '0') or (( cnt1+2 == 7) and (list(parent.state[cnt1+2][cnt2+2])[0] == 'C'))):
                                     #recursive call and move to this position
-                                    print "pri4"
+                                    print ""
                                     temp_state = copy.deepcopy(parent.state)
                                     #check for super-imposing moves on the last node
                                     if (temp_state[cnt1+2][cnt2+2] != '0') and (cnt1+2 == 7):
@@ -270,29 +307,54 @@ def move_generation(visited_nodes, depth_cntr, parent):
                                         temp_state[cnt1+2][cnt2+2] = 'C1'
                                     temp_state[cnt1][cnt2] = '0'
                                     temp_state[cnt1+1][cnt2+1] = '0'
-                                    temp_node = Node(0, temp_state, parent)
+                                    temp_node = Node(1, temp_state, parent)
                                     parent.children.append(temp_node)   #Add children here
                             else:
-                                #skip 
-                                print "pri44"                                 
+                                #skip
+                                pass_check_cntr_circle += 1                                
 
                     else:
                         print "LAST ROW BRO"
-                                    
+                        pass_check_cntr_circle = 4
+                else:
+                    print "Not a Star"
+                print "Internal pass counter:",pass_check_cntr_circle
+
+
+                if pass_check_cntr_circle == 4:   #pass check
+                    pass_cntr_star += 1
+                    print "PASS Inside: ",pass_cntr_star
+                    if pass_cntr_star ==  2:
+                        print "PASS Inside: Terminated"
+                        depth_cntr = 0
+                        breaker = 1
+                        break
+                    else:
+                        parent.player = 1
+                        move_generation(depth_cntr, parent)
+
+            if breaker == 1:
+                break
+            
+        if ((breaker == 0) and (len(parent.children == 0))):
+            pass_cntr_star += 1
+            print "PASS Outside: ",pass_cntr_star
+            if pass_cntr_star ==  2:
+                print "PASS Outside: Terminated"
+                depth_cntr = 0
+            else:
+                parent.player = 1
+                move_generation(depth_cntr, parent)
+
         depth_cntr -= 1
         #Check terminating conditions
         if depth_cntr < 0:  #depth check
             return
-        if len(parent.children) == 0:   #pass check
-            pass_cntr += 1
-            print "PASS"
-            if pass_cntr == 2:
-                print "PASS: Terminated"
-                return
+
         for i in parent.children:
             visited_nodes += 1
             print "\nVisted Nodes: ",visited_nodes
-            move_generation(visited_nodes, depth_cntr, i)
+            move_generation(depth_cntr, i)
                            
                      
 
@@ -326,13 +388,17 @@ def read_input_file():
 def main():
     depth_cntr, player, initial_state = read_input_file()
     root = None
+    
+    global visited_nodes
+    global pass_cntr_star
+    global pass_cntr_circle
     visited_nodes = 1
-    global pass_cntr
-    pass_cntr = 0
+    pass_cntr_star = 0
+    pass_cntr_circlr = 0
     root = tree_creation(player, initial_state, None) #created root here
     print "ROOT CREATED\n"
     #create tree here
-    move_generation(visited_nodes, depth_cntr, root)    #testing traversal
+    move_generation(depth_cntr, root)    #testing traversal
 
 
 #call to main function

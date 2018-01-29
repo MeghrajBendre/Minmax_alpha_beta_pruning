@@ -92,3 +92,35 @@
                                 else:
                                     #skip 
                                     print "pri44"'''
+
+
+
+
+
+
+
+                
+           '''     #print "Internal pass counter: ",    
+                if pass_check_cntr == 4:
+                    pass_cntr += 1
+                    print "INTERNAL PASS: ",pass_cntr
+                    if pass_cntr == 2:
+                        print "INTERNAL PASS: Terminated"
+                        return
+                    else:
+                        parent.player = 0
+                        move_generation(depth_cntr, parent)'''
+
+
+
+
+
+        if len(parent.children) == 0:   #pass check
+            pass_cntr += 1
+            print "PASS: ",pass_cntr
+            if pass_cntr == 2:
+                print "PASS: Terminated"
+                return
+            else:
+                parent.player = 0
+                move_generation(depth_cntr, parent)
