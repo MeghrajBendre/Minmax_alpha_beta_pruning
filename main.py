@@ -14,6 +14,10 @@ global weights
 global depth
 global pass_cntr
 global visited_nodes
+global algo
+
+
+
 
 #simple class for node manipulation
 class Node:
@@ -77,7 +81,7 @@ def is_game_over(board):
     return not(has_star and has_circle) 
 
 #move generation based on current position
-def move_generation(depth_cntr, parent):
+def move_generation(alpha, beta, depth_cntr, parent):
     #printing each new iteration here
     print "********************************************************"
     print "\nNode Name: ",parent.name
@@ -92,14 +96,15 @@ def move_generation(depth_cntr, parent):
 
     global pass_cntr
     global visited_nodes
+    global algo
+    
+    
     move = ""
-    myopic_utility = 0
 
     #Check terminating conditions
     if depth_cntr == 0 or is_game_over(parent.state):  #depth check
         print "Move1: " + str(move)
-        myopic_utility = int(utility_eval(parent.state))
-        return move, myopic_utility, myopic_utility 
+        return move, int(utility_eval(parent.state))
 
     if parent.player:  #STAR i.e. player is 1
         print "STAR"
@@ -249,9 +254,8 @@ def move_generation(depth_cntr, parent):
         if len(parent.children) == 0:
             if parent.pas == 2:
                 move = "pass"
-                myopic_utility = utility_eval(parent.state)
                 print "Move2: " + str(move)
-                return move, myopic_utility, myopic_utility
+                return move, utility_eval(parent.state)
             else:
                 temp_node = Node(0, copy.deepcopy(parent.state), parent)
                 temp_node.name = "pass"
@@ -263,26 +267,30 @@ def move_generation(depth_cntr, parent):
         for i in parent.children:
             visited_nodes += 1
             print "\nVisted Nodes: ",visited_nodes
-            m, myopic_utility, x = move_generation(depth_cntr-1, i)
+            m, x = move_generation(alpha, beta, depth_cntr-1, i)
             i.value = x
             if MAX == 1:
                 if x > max_value:
                     max_value = x
                     move = str(i.name)
-                    #myopic_utility = x
                     print "Move33: " + str(move)
+                    alpha = max(alpha, max_value)
+                    if algo and alpha >= beta:
+                        return move, max_value
             else:
                 if x < min_value:
                     min_value = x
                     move = str(i.name)
-                    #myopic_utility = x
                     print "Move44: " + str(move)
+                    beta = min(beta, min_value)
+                    if algo and alpha >= beta:
+                        return move, min_value
         if MAX == 1:
             print "Move3: " + str(move)
-            return move, myopic_utility, max_value
+            return move, max_value
         else:
             print "Move4: " + str(move)
-            return move, myopic_utility, min_value 
+            return move, min_value 
 
 
     else:
@@ -434,9 +442,8 @@ def move_generation(depth_cntr, parent):
         if len(parent.children) == 0:
             if parent.pas == 2:
                 move = "pass"
-                myopic_utility = utility_eval(parent.state)
                 print "Move5: " + str(move)
-                return move, myopic_utility, myopic_utility
+                return move, utility_eval(parent.state)
             else:
                 temp_node = Node(1, copy.deepcopy(parent.state), parent)
                 temp_node.name = "pass"
@@ -448,26 +455,30 @@ def move_generation(depth_cntr, parent):
         for i in parent.children:
             visited_nodes += 1
             print "\nVisted Nodes: ",visited_nodes
-            m, myopic_utility, x = move_generation(depth_cntr-1, i)
+            m, x = move_generation(alpha, beta, depth_cntr-1, i)
             i.value = x
             if MAX == 0:
                 if x > max_value:
                     max_value = x
                     move = str(i.name)
-                    #myopic_utility = x
                     print "Move66:" + move
+                    alpha = max(alpha, max_value)
+                    if algo and alpha >= beta:
+                        return move, max_value
             else:
                 if x < min_value:
                     min_value = x
                     move = str(i.name)
-                    #myopic_utility = x
                     print "Move77:" + move
+                    beta = min(beta, min_value)
+                    if algo and alpha >= beta:
+                        return move, min_value
         if MAX == 0:
             print "Move6: " + move
-            return move, myopic_utility, max_value
+            return move, max_value
         else:
             print "Move7: " + move
-            return move, myopic_utility, min_value 
+            return move, min_value 
 
 ###################################################################################################################
 #reads input file and does necessary formatting
@@ -478,6 +489,8 @@ def read_input_file():
 
     global MAX
     global weights
+    global algo
+
     #setting player variable here
     if str(ip[0]) == str("Star"):
         MAX = 1
@@ -485,9 +498,9 @@ def read_input_file():
         MAX = 0
     #setting algorithm variable here
     if ip[1] == 'MINIMAX':
-        algo = 1
-    else:
         algo = 0
+    else:
+        algo = 1
     #setting depth of the tree
     depth = int(ip[2])
     #populating weights here
@@ -504,18 +517,23 @@ def main():
     
     global visited_nodes
     global pass_cntr
-    global MAX   
+    global MAX
+    
+    
+
+    infinity = float('inf')
+    alpha = -infinity
+    beta = infinity
 
     visited_nodes = 1
     pass_cntr = 0
     pass_cntr_circlr = 0
     move = ""
-    myopic_utility = 0
     root = tree_creation(MAX, initial_state, None) #created root here
     print "ROOT CREATED\n"
     #create tree here
     print "\nVisted Nodes: ",visited_nodes
-    move, myopic_utility, best_move = move_generation(depth_cntr, root)    #testing traversal
+    move, best_move = move_generation(alpha, beta, depth_cntr, root)    #testing traversal
 
     #calculating myopic utility
     if root:
