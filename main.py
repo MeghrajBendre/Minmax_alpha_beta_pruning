@@ -93,11 +93,13 @@ def move_generation(depth_cntr, parent):
     global pass_cntr
     global visited_nodes
     move = ""
+    myopic_utility = 0
 
     #Check terminating conditions
     if depth_cntr == 0 or is_game_over(parent.state):  #depth check
         print "Move1: " + str(move)
-        return move, int(utility_eval(parent.state)) 
+        myopic_utility = int(utility_eval(parent.state))
+        return move, myopic_utility, myopic_utility 
 
     if parent.player:  #STAR i.e. player is 1
         print "STAR"
@@ -247,8 +249,9 @@ def move_generation(depth_cntr, parent):
         if len(parent.children) == 0:
             if parent.pas == 2:
                 move = "pass"
+                myopic_utility = utility_eval(parent.state)
                 print "Move2: " + str(move)
-                return move, utility_eval(parent.state)
+                return move, myopic_utility, myopic_utility
             else:
                 temp_node = Node(0, copy.deepcopy(parent.state), parent)
                 temp_node.name = "pass"
@@ -260,24 +263,26 @@ def move_generation(depth_cntr, parent):
         for i in parent.children:
             visited_nodes += 1
             print "\nVisted Nodes: ",visited_nodes
-            m, x = move_generation(depth_cntr-1, i)
+            m, myopic_utility, x = move_generation(depth_cntr-1, i)
             i.value = x
             if MAX == 1:
                 if x > max_value:
                     max_value = x
                     move = str(i.name)
+                    #myopic_utility = x
                     print "Move33: " + str(move)
             else:
                 if x < min_value:
                     min_value = x
                     move = str(i.name)
+                    #myopic_utility = x
                     print "Move44: " + str(move)
         if MAX == 1:
             print "Move3: " + str(move)
-            return move, max_value
+            return move, myopic_utility, max_value
         else:
             print "Move4: " + str(move)
-            return move, min_value 
+            return move, myopic_utility, min_value 
 
 
     else:
@@ -429,8 +434,9 @@ def move_generation(depth_cntr, parent):
         if len(parent.children) == 0:
             if parent.pas == 2:
                 move = "pass"
+                myopic_utility = utility_eval(parent.state)
                 print "Move5: " + str(move)
-                return move, utility_eval(parent.state)
+                return move, myopic_utility, myopic_utility
             else:
                 temp_node = Node(1, copy.deepcopy(parent.state), parent)
                 temp_node.name = "pass"
@@ -442,24 +448,26 @@ def move_generation(depth_cntr, parent):
         for i in parent.children:
             visited_nodes += 1
             print "\nVisted Nodes: ",visited_nodes
-            m, x = move_generation(depth_cntr-1, i)
+            m, myopic_utility, x = move_generation(depth_cntr-1, i)
             i.value = x
             if MAX == 0:
                 if x > max_value:
                     max_value = x
                     move = str(i.name)
+                    #myopic_utility = x
                     print "Move66:" + move
             else:
                 if x < min_value:
                     min_value = x
                     move = str(i.name)
+                    #myopic_utility = x
                     print "Move77:" + move
         if MAX == 0:
             print "Move6: " + move
-            return move, max_value
+            return move, myopic_utility, max_value
         else:
             print "Move7: " + move
-            return move, min_value 
+            return move, myopic_utility, min_value 
 
 ###################################################################################################################
 #reads input file and does necessary formatting
@@ -502,19 +510,32 @@ def main():
     pass_cntr = 0
     pass_cntr_circlr = 0
     move = ""
+    myopic_utility = 0
     root = tree_creation(MAX, initial_state, None) #created root here
     print "ROOT CREATED\n"
     #create tree here
     print "\nVisted Nodes: ",visited_nodes
-    move, best_move = move_generation(depth_cntr, root)    #testing traversal
+    move, myopic_utility, best_move = move_generation(depth_cntr, root)    #testing traversal
+
+    #calculating myopic utility
+    if root:
+        print len(root.children)
+        for child in root.children:
+            if child.name == move:
+                    for i in child.state:
+                        print "\n"
+                        for j in i:
+                            print j,
+                    lol = utility_eval(child.state)
+                    print "LOLOL: " + str(lol)
+                
 
     #writing to the output file
     op = open("output.txt","w")
-    op.write("\nMAX player: " + str(MAX))
-    op.write("\nROOT player: " + str(root.player))
-    op.write("\n Move: " + str(move))
-    op.write("\n Best Move value: " + str(best_move))    
-    op.write("\nVisited Nodes: " + str(visited_nodes))
+    op.write(str(move) + "\n")
+    op.write(str(lol) + "\n")
+    op.write(str(best_move) + "\n")    
+    op.write(str(visited_nodes) + "\n")
 
     op.close()
 
