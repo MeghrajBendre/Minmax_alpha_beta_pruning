@@ -147,3 +147,14 @@
 
 
 
+    print "********************************************************"
+    print "\nNode Name: ",parent.name
+    for i in parent.state:
+        print "\n"
+        for j in i:
+            print j,
+    print "\nDepth: ",depth_cntr
+    print "\nPlayer: ",parent.player
+    print "\nNo of children: ",len(parent.children)      
+    print "********************************************************"
+
