@@ -44,16 +44,22 @@ def utility_eval(board): #current_node.player
         a += 1
         for j in i:
             if list(j)[0] == 'S':
+                print "star1: ",int(list(j)[1])
+                print "star2: ",int(weights[(a*(-1))-1])
                 sum_star += (int(list(j)[1]) * int(weights[(a*(-1))-1]))
             if list(j)[0] == 'C':
-                sum_star += (int(list(j)[1]) * int(weights[a]))
+                print "circle1: ",int(list(j)[1])
+                print "circle2: ",int(weights[a])
+                sum_circle += (int(list(j)[1]) * int(weights[a]))
     
     print "sum of stars: ",sum_star
     print "sum of circle: ",sum_circle
 
     if MAX:  #STAR and MAX
+        print "RETURN: 1st :: ",int(sum_star - sum_circle)
         return int(sum_star - sum_circle)
     else:       #CIRCLE and MAX
+        print "RETURN: 2nd ::",int(sum_circle-sum_star)
         return int(sum_circle - sum_star)
 
 
@@ -71,7 +77,7 @@ def is_game_over(board):
     return not(has_star and has_circle) 
 
 #move generation based on current position
-def move_generation(move, depth_cntr, parent):
+def move_generation(depth_cntr, parent):
     #printing each new iteration here
     print "********************************************************"
     print "\nNode Name: ",parent.name
@@ -86,9 +92,11 @@ def move_generation(move, depth_cntr, parent):
 
     global pass_cntr
     global visited_nodes
+    move = ""
 
     #Check terminating conditions
     if depth_cntr == 0 or is_game_over(parent.state):  #depth check
+        print "Move1: " + str(move)
         return move, int(utility_eval(parent.state)) 
 
     if parent.player:  #STAR i.e. player is 1
@@ -237,43 +245,40 @@ def move_generation(move, depth_cntr, parent):
 
         print "No of children before checks: ",len(parent.children)
         if len(parent.children) == 0:
-
-            #calculate utility for the terminal node
-            x = 0
-            x = utility_eval(parent.state)
-            parent.value = x
-            print "Utility for terminal node: ",parent.value
-            
-            #logic for pass
-            parent.pas += 1
-            print "PASS from STAR: ",parent.pas
             if parent.pas == 2:
-                print "PASS: TERMINATION"
-                depth = 0
+                move = "pass"
+                print "Move2: " + str(move)
+                return move, utility_eval(parent.state)
             else:
-                parent.player = 0   #call Circle now
-                visited_nodes += 1
-                print "\nVisted Nodes: ",visited_nodes
-                move_generation(move, depth_cntr-1, parent)
-        else:
+                temp_node = Node(0, copy.deepcopy(parent.state), parent)
+                temp_node.name = "pass"
+                temp_node.pas = parent.pas + 1
+                parent.children.append(temp_node)
+                
+                            
         #call children of the parent
-            for i in parent.children:
-                visited_nodes += 1
-                print "\nVisted Nodes: ",visited_nodes
-                move, x = move_generation(move, depth_cntr-1, i)
-                i.value = x
-                if MAX == 1:
-                    max_value = max(max_value, x)
-                    if x > max_value:
-                        move = str(parent.name)
-                else:
-                    min_value = min(min_value, x)
-                    if x < min_value:
-                        move = str(parent.name)
+        for i in parent.children:
+            visited_nodes += 1
+            print "\nVisted Nodes: ",visited_nodes
+            m, x = move_generation(depth_cntr-1, i)
+            i.value = x
             if MAX == 1:
-                return move, max_value
+                if x > max_value:
+                    max_value = x
+                    move = str(i.name)
+                    print "Move33: " + str(move)
             else:
-                return move, min_value
+                if x < min_value:
+                    min_value = x
+                    move = str(i.name)
+                    print "Move44: " + str(move)
+        if MAX == 1:
+            print "Move3: " + str(move)
+            return move, max_value
+        else:
+            print "Move4: " + str(move)
+            return move, min_value 
+
 
     else:
         print "CIRCLE"
@@ -422,43 +427,39 @@ def move_generation(move, depth_cntr, parent):
 
         print "No of children before checks: ",len(parent.children)
         if len(parent.children) == 0:
-
-            #calculate utility for the terminal node
-            x = 0
-            x = utility_eval(parent.state)
-            parent.value = x
-            print "Utility for terminal node: ",parent.value
-            
-            #logic for pass
-            parent.pas += 1
-            print "PASS from STAR: ",parent.pas
             if parent.pas == 2:
-                print "PASS: TERMINATION"
-                depth = 0
+                move = "pass"
+                print "Move5: " + str(move)
+                return move, utility_eval(parent.state)
             else:
-                parent.player = 1   #call Circle now
-                visited_nodes += 1
-                print "\nVisted Nodes: ",visited_nodes
-                move_generation(move, depth_cntr-1, parent)
-        else:
+                temp_node = Node(1, copy.deepcopy(parent.state), parent)
+                temp_node.name = "pass"
+                temp_node.pas = parent.pas + 1
+                parent.children.append(temp_node)
+
+
         #call children of the parent
-            for i in parent.children:
-                visited_nodes += 1
-                print "\nVisted Nodes: ",visited_nodes
-                move, x = move_generation(move, depth_cntr-1, i)
-                i.value = x
-                if MAX == 0:
-                    max_value = max(max_value, x)
-                    if x > max_value:
-                        move = str(parent.name)
-                else:
-                    min_value = min(min_value, x)
-                    if x < min_value:
-                        move = str(parent.name)
+        for i in parent.children:
+            visited_nodes += 1
+            print "\nVisted Nodes: ",visited_nodes
+            m, x = move_generation(depth_cntr-1, i)
+            i.value = x
             if MAX == 0:
-                return move, max_value
+                if x > max_value:
+                    max_value = x
+                    move = str(i.name)
+                    print "Move66:" + move
             else:
-                return move, min_value 
+                if x < min_value:
+                    min_value = x
+                    move = str(i.name)
+                    print "Move77:" + move
+        if MAX == 0:
+            print "Move6: " + move
+            return move, max_value
+        else:
+            print "Move7: " + move
+            return move, min_value 
 
 ###################################################################################################################
 #reads input file and does necessary formatting
@@ -501,12 +502,11 @@ def main():
     pass_cntr = 0
     pass_cntr_circlr = 0
     move = ""
-
     root = tree_creation(MAX, initial_state, None) #created root here
     print "ROOT CREATED\n"
     #create tree here
     print "\nVisted Nodes: ",visited_nodes
-    move, best_move = move_generation(move, depth_cntr, root)    #testing traversal
+    move, best_move = move_generation(depth_cntr, root)    #testing traversal
 
     #writing to the output file
     op = open("output.txt","w")
