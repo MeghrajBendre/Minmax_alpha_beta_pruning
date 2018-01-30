@@ -9,12 +9,11 @@ import copy
 
 
 #global variables for constant values through out the recursion
-global algo
-global weight
+global MAX
+global weights
 global depth
 global pass_cntr
 global visited_nodes
-
 
 #simple class for node manipulation
 class Node:
@@ -35,6 +34,30 @@ def tree_creation(player, initial_state, root):
         root.name = "ROOT"
         return root
 
+#utility function
+def utility_eval(board): #current_node.player
+    a = -1
+    sum_star = int(0)
+    sum_circle = int(0)
+    global weights
+    for i in board:
+        a += 1
+        for j in i:
+            if list(j)[0] == 'S':
+                sum_star += (int(list(j)[1]) * int(weights[(a*(-1))-1]))
+            if list(j)[0] == 'C':
+                sum_star += (int(list(j)[1]) * int(weights[a]))
+    
+    print "sum of stars: ",sum_star
+    print "sum of circle: ",sum_circle
+
+    if MAX:  #STAR and MAX
+        return int(sum_star - sum_circle)
+    else:       #CIRCLE and MAX
+        return int(sum_circle - sum_star)
+
+
+
 #check if 1.No pieces on board 2.Only Stars 3.Only circles 
 def is_game_over(board):
     has_star = False
@@ -48,7 +71,7 @@ def is_game_over(board):
     return not(has_star and has_circle) 
 
 #move generation based on current position
-def move_generation(depth_cntr, parent):
+def move_generation(move, depth_cntr, parent):
     #printing each new iteration here
     print "********************************************************"
     print "\nNode Name: ",parent.name
@@ -63,11 +86,10 @@ def move_generation(depth_cntr, parent):
 
     global pass_cntr
     global visited_nodes
-    
 
     #Check terminating conditions
     if depth_cntr == 0 or is_game_over(parent.state):  #depth check
-        return
+        return move, int(utility_eval(parent.state)) 
 
     if parent.player:  #STAR i.e. player is 1
         print "STAR"
@@ -204,9 +226,25 @@ def move_generation(depth_cntr, parent):
                             print "No valid move for this piece of S"
                     else:
                         print "Last Row"        
+        
+        #If STAR is MAX
+        if MAX == 1:
+            infinity = float('inf')
+            max_value = -infinity
+        else:
+            infinity = float('inf')
+            min_value = infinity
 
         print "No of children before checks: ",len(parent.children)
         if len(parent.children) == 0:
+
+            #calculate utility for the terminal node
+            x = 0
+            x = utility_eval(parent.state)
+            parent.value = x
+            print "Utility for terminal node: ",parent.value
+            
+            #logic for pass
             parent.pas += 1
             print "PASS from STAR: ",parent.pas
             if parent.pas == 2:
@@ -216,13 +254,26 @@ def move_generation(depth_cntr, parent):
                 parent.player = 0   #call Circle now
                 visited_nodes += 1
                 print "\nVisted Nodes: ",visited_nodes
-                move_generation(depth_cntr-1, parent)
+                move_generation(move, depth_cntr-1, parent)
         else:
         #call children of the parent
             for i in parent.children:
                 visited_nodes += 1
                 print "\nVisted Nodes: ",visited_nodes
-                move_generation(depth_cntr-1, i)
+                move, x = move_generation(move, depth_cntr-1, i)
+                i.value = x
+                if MAX == 1:
+                    max_value = max(max_value, x)
+                    if x > max_value:
+                        move = str(parent.name)
+                else:
+                    min_value = min(min_value, x)
+                    if x < min_value:
+                        move = str(parent.name)
+            if MAX == 1:
+                return move, max_value
+            else:
+                return move, min_value
 
     else:
         print "CIRCLE"
@@ -359,13 +410,28 @@ def move_generation(depth_cntr, parent):
                         if pass_check_cntr_circle == 4: #no move for a state and should be a pass
                             print "No valid move for this piece of S"
                     else:
-                        print "Last Row" 
+                        print "Last Row"
 
-        #if no children for current node, pass
+                #If STAR is MAX
+        if MAX == 0:
+            infinity = float('inf')
+            max_value = -infinity
+        else:
+            infinity = float('inf')
+            min_value = infinity
+
         print "No of children before checks: ",len(parent.children)
         if len(parent.children) == 0:
+
+            #calculate utility for the terminal node
+            x = 0
+            x = utility_eval(parent.state)
+            parent.value = x
+            print "Utility for terminal node: ",parent.value
+            
+            #logic for pass
             parent.pas += 1
-            print "PASS from CIRCLE: ",parent.pas
+            print "PASS from STAR: ",parent.pas
             if parent.pas == 2:
                 print "PASS: TERMINATION"
                 depth = 0
@@ -373,16 +439,26 @@ def move_generation(depth_cntr, parent):
                 parent.player = 1   #call Circle now
                 visited_nodes += 1
                 print "\nVisted Nodes: ",visited_nodes
-                move_generation(depth_cntr-1, parent)
+                move_generation(move, depth_cntr-1, parent)
         else:
         #call children of the parent
             for i in parent.children:
                 visited_nodes += 1
                 print "\nVisted Nodes: ",visited_nodes
-                move_generation(depth_cntr-1, i)
-                           
-    return  #final return of moves_generation             
-
+                move, x = move_generation(move, depth_cntr-1, i)
+                i.value = x
+                if MAX == 0:
+                    max_value = max(max_value, x)
+                    if x > max_value:
+                        move = str(parent.name)
+                else:
+                    min_value = min(min_value, x)
+                    if x < min_value:
+                        move = str(parent.name)
+            if MAX == 0:
+                return move, max_value
+            else:
+                return move, min_value 
 
 ###################################################################################################################
 #reads input file and does necessary formatting
@@ -390,11 +466,14 @@ def read_input_file():
     input_file = open("input.txt")
     ip = input_file.read().splitlines()
     input_file.close()
+
+    global MAX
+    global weights
     #setting player variable here
     if str(ip[0]) == str("Star"):
-        player = 1
+        MAX = 1
     else:
-        player = 0
+        MAX = 0
     #setting algorithm variable here
     if ip[1] == 'MINIMAX':
         algo = 1
@@ -407,30 +486,36 @@ def read_input_file():
     #create initial state of the board
     initial_state = [ str(i).split(",") for i in ip[3:11]]
 
-    return depth, player, initial_state
+    return depth, initial_state
 
 #main function to handle user interface
 def main():
-    depth_cntr, player, initial_state = read_input_file()
+    depth_cntr, initial_state = read_input_file()
     root = None
     
     global visited_nodes
     global pass_cntr
-    
-    
+    global MAX   
+
     visited_nodes = 1
     pass_cntr = 0
     pass_cntr_circlr = 0
+    move = ""
 
-    root = tree_creation(player, initial_state, None) #created root here
+    root = tree_creation(MAX, initial_state, None) #created root here
     print "ROOT CREATED\n"
     #create tree here
     print "\nVisted Nodes: ",visited_nodes
-    move_generation(depth_cntr, root)    #testing traversal
+    move, best_move = move_generation(move, depth_cntr, root)    #testing traversal
 
     #writing to the output file
     op = open("output.txt","w")
+    op.write("\nMAX player: " + str(MAX))
+    op.write("\nROOT player: " + str(root.player))
+    op.write("\n Move: " + str(move))
+    op.write("\n Best Move value: " + str(best_move))    
     op.write("\nVisited Nodes: " + str(visited_nodes))
+
     op.close()
 
 
