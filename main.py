@@ -165,7 +165,7 @@ def move_generation(depth_cntr, parent):
                                     temp_state[cnt1-1][cnt2+1] = '0'
                                     print "lol" + str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+1)) + str(cnt2+1+1)
                                     temp_node = Node(0, temp_state, parent)
-                                    temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+1)) + str(cnt2+1+1))
+                                    temp_node.name = str(str(chr(72-cnt1)) + str(cnt2+1) + "-" + str(chr(72-cnt1+2)) + str(cnt2+2+1))
                                     parent.children.append(temp_node)   #Add children here
                             else:
                                 #skip
